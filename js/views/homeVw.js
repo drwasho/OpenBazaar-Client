@@ -321,6 +321,24 @@ module.exports = pageVw.extend({
         newUserModel,
         storeShort;
 
+    // IRC \\
+    // Load the npm IRC client, use own GUID as the username, and join the OpenBazaar channel
+    var irc = require('irc');
+    var client = new irc.Client('chat.freenode.com', this.userModel.get('guid') , {
+        channels: ['#openbazaar'],
+    });
+    console.log(user.guid);
+
+    // Load and render messages sent on the OpenBazaar IRC channel
+    client.addListener('message', function (from, to, message) {
+      // $("#irc").text(from + ' => ' + to + ': ' + message);
+      // var irctext = document.getElementById('irc');
+      // irctext.text += from + ' => ' + to + ': ' + message;
+      var theDiv = document.getElementById("irc");
+      var content = document.createTextNode(from + ' => ' + to + ': ' + message + "\n");
+      theDiv.appendChild(content);
+    });
+
     //don't load duplicates
     if (this.loadedUsers.indexOf(user.guid) !== -1){
       return;
@@ -714,4 +732,5 @@ module.exports = pageVw.extend({
     this.scrollHandler && this.obContainer.off('scroll', this.scrollHandler);
     pageVw.prototype.remove.apply(this, arguments);
   }
+
 });

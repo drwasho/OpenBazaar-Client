@@ -24,7 +24,7 @@ module.exports = pageVw.extend({
     'click .js-vendorsTab': function() {
       this.setState("vendors");
     },
-    'click .js-globalChat': function() {
+    'click .js-globalChatTab': function() {
       this.setState("globalChat");
     },
     'click .js-homeCreateStore': 'createStore',
@@ -35,7 +35,8 @@ module.exports = pageVw.extend({
     'blur .js-homeSearchItems': 'searchItemsBlur',
     'click .js-homeListingsFollowed': 'clickListingsFollowed',
     'click .js-homeListingsAll': 'clickListingsAll',
-    'click .backToTop': 'clickBackToTop'
+    'click .backToTop': 'clickBackToTop',
+    'click .js-sendircmessage': 'sendircmessage'
   },
 
   initialize: function(options){
@@ -59,6 +60,9 @@ module.exports = pageVw.extend({
     this.showNSFW = JSON.parse(localStorage.getItem('NSFWFilter'));
     this.cachedScrollPositions = {};
     this.loadedUsers = [];
+    this.client = new irc.Client('chat.freenode.com', this.userModel.get('guid') , {
+        channels: ['#openbazaar'],
+    });
 
     this.model.set({user: this.options.userModel.toJSON(), page: this.userProfile.toJSON()});
 
@@ -178,8 +182,8 @@ module.exports = pageVw.extend({
   },
 
   hideList: function(){
-    this.$('.js-products, .js-vendors, .js-productsSearch').addClass('hide');
-    this.$('.js-productsTab, .js-vendorsTab, .js-globalChat').removeClass('active');
+    this.$('.js-products, .js-vendors, .js-productsSearch, .js-globalChat').addClass('hide');
+    this.$('.js-productsTab, .js-vendorsTab, .js-globalChatTab').removeClass('active');
   },
 
   resetLookingCount: function(){
@@ -204,17 +208,42 @@ module.exports = pageVw.extend({
   render: function(){
     var self = this;
 
-    // IRC \\
-    // Load the npm IRC client, use own GUID as the username, and join the OpenBazaar channel
-    var client = new irc.Client('chat.freenode.com', this.userModel.get('guid') , {
-        channels: ['#openbazaar'],
+    // Counter for the IRC chat messages
+    var current = 1;
+
+    // Load and render registration data when joining the OpenBazaar IRC channel
+    this.client.addListener('registered', function (message) {
+      $("#irc").append('<div>' + message.args[1] + "\n" + '</div>');
+      current++;
+      $('#irc div:lt(-10)').remove();
+    });
+
+    // Load and render when users join the OpenBazaar IRC channel
+    this.client.addListener('join#openbazaar', function (nick, message) {
+      $("#irc").append('<div>' + nick + " has joined #openbazaar" + "\n" + '</div>');
+      current++;
+      $('#irc div:lt(-10)').remove();
     });
 
     // Load and render messages sent on the OpenBazaar IRC channel
-    client.addListener('message', function (from, to, message) {
-      var theDiv = document.getElementById("irc");
-      var content = document.createTextNode(from + ' => ' + to + ': ' + message + "\n");
-      theDiv.appendChild(content);
+    this.client.addListener('message', function (from, to, message) {
+      $("#irc").append('<div>' + from + ': ' + message + "\n" + '</div>');
+      current++;
+      $('#irc div:lt(-10)').remove();
+    });
+
+    // Load and render messages the node sends to the OpenBazaar IRC channel
+    this.client.addListener('selfMessage', function (to, text) {
+      $("#irc").append('<div>' + 'me: ' + text + "\n" + '</div>');
+      current++;
+      $('#irc div:lt(-10)').remove();
+    });
+
+    // Load and render any error messages
+    this.client.addListener('error', function (message) {
+      $("#irc").append('<div>' + 'Error: ' + message + "\n" + '</div>');
+      current++;
+      $('#irc div:lt(-10)').remove();
     });
 
     loadTemplate('./js/templates/backToTop.html', function(backToTopTmpl) {
@@ -385,7 +414,7 @@ module.exports = pageVw.extend({
     var searchTextFrag;
 
     if (!state){
-      state = "products";
+      state = "prouct";
     }
 
     this.hideList();
@@ -405,6 +434,13 @@ module.exports = pageVw.extend({
   // Do this when a user presses the 'Create Store' button
   createStore: function(){
     Backbone.history.navigate('#userPage/'+this.userModel.get('guid')+'/createStore', {trigger: true});
+  },
+
+  // Send messages to the #openbazaar IRC channel
+  sendircmessage: function(){
+    var message = $("#ircmessage").val();
+    this.client.say('#openbazaar', message);
+    $("#ircmessage").val('');
   },
 
   // Do this when a user presses the 'Create listings' button

@@ -30,7 +30,7 @@
         <span class="ion-document-text fontSize12 marginRight2 textOpacity1"></span> 
         <%= polyglot.t('Pages') %>
       </a>
-      <a class="btn btn-bar btn-tab js-globalChat">
+      <a class="btn btn-bar btn-tab js-globalChatTab">
         <span class="ion-ios-chatboxes fontSize12 marginRight2 textOpacity1"></span> 
         <%= polyglot.t('Global Chat') %>
       </a>
@@ -39,6 +39,21 @@
 
   <!-- ? -->
   <div class="bar home-page-navigation-filler hide custCol-primary"></div>
+
+  <!-- Dump global chat -->
+  <div class="color-primary js-globalChat minHeight650 hide">
+    <div class="flewRow height130">
+        <p id="irc"></p>
+        <br>
+    </div>
+    <br>
+    <div class="flexRow">
+      <p><input type="text" class="txtField txtField-bar" id="ircmessage" placeholder="Chat here" /></p>
+    </div>
+    <div class="flewRow">
+      <p><button class="btn btn-txt btn-discoverToggle borderRadiusBottom0 btn-togLeft js-sendircmessage" style="color:white" type="submit">Send</button></p>
+    </div>
+  </div>
 
   <!-- Search bar + filtering -->
   <div class="flex-border color-primary height54 js-productsSearch">

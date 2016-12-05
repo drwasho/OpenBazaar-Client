@@ -10,7 +10,8 @@ var __ = require('underscore'),
     itemShortModel = require('../models/itemShortMd'),
     userShortView = require('./userShortVw'),
     userShortModel = require('../models/userShortMd'),
-    Dialog = require('../views/dialog.js');
+    Dialog = require('../views/dialog.js'),
+    irc = require('irc');
 
 module.exports = pageVw.extend({
 
@@ -22,6 +23,9 @@ module.exports = pageVw.extend({
     },
     'click .js-vendorsTab': function() {
       this.setState("vendors");
+    },
+    'click .js-globalChat': function() {
+      this.setState("globalChat");
     },
     'click .js-homeCreateStore': 'createStore',
     'click .js-homeCreateListing': 'createListing',
@@ -119,6 +123,7 @@ module.exports = pageVw.extend({
     this.obContainer.off('scroll', this.scrollHandler);
   },
 
+  // API call to get your own Followers
   fetchOwnFollowing: function(callback){
     var self = this;
     $.ajax({
@@ -139,6 +144,7 @@ module.exports = pageVw.extend({
     });
   },
 
+  // Socket timeout function
   setSocketTimeout: function(){
     var self = this;
     this.$el.find('.js-loadingMessage .spinner').removeClass('fadeOut');
@@ -173,7 +179,7 @@ module.exports = pageVw.extend({
 
   hideList: function(){
     this.$('.js-products, .js-vendors, .js-productsSearch').addClass('hide');
-    this.$('.js-productsTab, .js-vendorsTab').removeClass('active');
+    this.$('.js-productsTab, .js-vendorsTab, .js-globalChat').removeClass('active');
   },
 
   resetLookingCount: function(){
@@ -197,6 +203,19 @@ module.exports = pageVw.extend({
 
   render: function(){
     var self = this;
+
+    // IRC \\
+    // Load the npm IRC client, use own GUID as the username, and join the OpenBazaar channel
+    var client = new irc.Client('chat.freenode.com', this.userModel.get('guid') , {
+        channels: ['#openbazaar'],
+    });
+
+    // Load and render messages sent on the OpenBazaar IRC channel
+    client.addListener('message', function (from, to, message) {
+      var theDiv = document.getElementById("irc");
+      var content = document.createTextNode(from + ' => ' + to + ': ' + message + "\n");
+      theDiv.appendChild(content);
+    });
 
     loadTemplate('./js/templates/backToTop.html', function(backToTopTmpl) {
       loadTemplate('./js/templates/home.html', function(loadedTemplate) {
@@ -247,6 +266,7 @@ module.exports = pageVw.extend({
     });
   },
 
+  // Render individual listings in the Listings Tab
   renderItem: function(item){
     var self = this,
         blocked,
@@ -315,29 +335,20 @@ module.exports = pageVw.extend({
     }
   },
 
+  // Render chat messages
+  renderChat: function(){
+    var self = this;
+    
+    // Load the chat html
+    loadTemplate('./js/templates/backToTop.html');
+  },
+
+  // Render individual users in the Pages Tab
   renderUser: function(user){
     var self = this,
         blocked = this.userModel.get('blocked_guids') || [],
         newUserModel,
         storeShort;
-
-    // IRC \\
-    // Load the npm IRC client, use own GUID as the username, and join the OpenBazaar channel
-    var irc = require('irc');
-    var client = new irc.Client('chat.freenode.com', this.userModel.get('guid') , {
-        channels: ['#openbazaar'],
-    });
-    console.log(user.guid);
-
-    // Load and render messages sent on the OpenBazaar IRC channel
-    client.addListener('message', function (from, to, message) {
-      // $("#irc").text(from + ' => ' + to + ': ' + message);
-      // var irctext = document.getElementById('irc');
-      // irctext.text += from + ' => ' + to + ': ' + message;
-      var theDiv = document.getElementById("irc");
-      var content = document.createTextNode(from + ' => ' + to + ': ' + message + "\n");
-      theDiv.appendChild(content);
-    });
 
     //don't load duplicates
     if (this.loadedUsers.indexOf(user.guid) !== -1){
@@ -391,20 +402,24 @@ module.exports = pageVw.extend({
     this.state = state;
   },
 
+  // Do this when a user presses the 'Create Store' button
   createStore: function(){
     Backbone.history.navigate('#userPage/'+this.userModel.get('guid')+'/createStore', {trigger: true});
   },
 
+  // Do this when a user presses the 'Create listings' button
   createListing: function(){
     Backbone.history.navigate('#userPage/'+this.userModel.get('guid')+'/listingNew', {trigger: true});
   },
 
+  // Do this when a user presses the Follow button (either the Listings or Pages Tabs)
   addFollower: function(guid) {
     if (guid && this.ownFollowing.indexOf(guid) == -1) {
       this.ownFollowing.push(guid);
     }
   },
 
+  // Do this when a user presses the Unfollow button (either the Listings or Pages Tabs)
   removeFollower: function(guid) {
     var index;
 
@@ -413,6 +428,7 @@ module.exports = pageVw.extend({
     }
   },
 
+  // API call behind the Follow/Unfollow buttons (either the Listings or Pages Tabs)
   _followUnfollowUser: function(follow, options) {
     var self = this;
 
@@ -421,11 +437,12 @@ module.exports = pageVw.extend({
       follow = true;
     }
 
-    //don't follow if this is the user's own guid
+    // Don't follow if this is the user's own guid
     if (options.guid == this.options.userModel.get('guid')){
       return;
     }
 
+    // Follow/Unfollow POST API call
     $.ajax({
       type: "POST",
       data: {'guid': options.guid},

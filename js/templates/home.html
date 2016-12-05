@@ -1,5 +1,7 @@
 <div class="mainContainer">
   <div class="home-page-header">
+
+    <!-- Discover Bar -->
     <div class="welcomeBar">
       <div class="welcomeBar-inner">
         <h1 class="fancy-heading fontSize20 vCentered js-discoverHeading"><%= polyglot.t('Discover') %></h1>
@@ -18,6 +20,7 @@
       </div>
     </div>
 
+    <!-- Tabs: Listings, Pages, and Global Chat -->
     <div class="bar barFlush navBar home-page-navigation height55">
       <a class="btn btn-bar btn-tab active js-productsTab">
         <span class="ion-ios-pricetag fontSize11 marginRight2 textOpacity1"></span> 
@@ -27,9 +30,17 @@
         <span class="ion-document-text fontSize12 marginRight2 textOpacity1"></span> 
         <%= polyglot.t('Pages') %>
       </a>
+      <a class="btn btn-bar btn-tab js-globalChat">
+        <span class="ion-ios-chatboxes fontSize12 marginRight2 textOpacity1"></span> 
+        <%= polyglot.t('Global Chat') %>
+      </a>
     </div>
   </div>
+
+  <!-- ? -->
   <div class="bar home-page-navigation-filler hide custCol-primary"></div>
+
+  <!-- Search bar + filtering -->
   <div class="flex-border color-primary height54 js-productsSearch">
     <div class="flexRow">
       <div class="flexRow borderBottom">
@@ -74,11 +85,15 @@
       </div>
     </div>
   </div>
+
+  <!-- Search spinner -->
   <div class="flexRow flexRow-wrap color-primary js-vendors minHeight650 hide">
     <div class="padding10 width100 alignCenter js-loadingSpinner spinnerWrapper borderTop">
       <i class="ion-android-sync spinner textSize24px textOpacity50"></i>
     </div>
   </div>
+  
+  <!-- Listings in a grid -->
   <div class="homeGridItems">
     <div class="js-products color-primary minHeight650">
       <div class="js-blocked-listings-count color-primary width100 hide"></div>
@@ -94,6 +109,10 @@
       </div>
     </div>
   </div>
+
+  <!-- Back to the top floating button -->
   <%= ob.backToTopTmpl() %>
+
+  <!-- Padding at the bottom -->
   <div class="navBar custCol-secondary" style="padding: 4px 0"></div>
 </div>

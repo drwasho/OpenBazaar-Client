@@ -414,7 +414,7 @@ module.exports = pageVw.extend({
     var searchTextFrag;
 
     if (!state){
-      state = "prouct";
+      state = "product";
     }
 
     this.hideList();

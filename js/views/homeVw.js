@@ -27,6 +27,10 @@ module.exports = pageVw.extend({
     'click .js-globalChatTab': function() {
       this.setState("globalChat");
     },
+    //'click .js-requestsTab': 'showrequests',
+    'click .js-requestsTab': function() {
+      this.setState("requests");
+    },
     'click .js-homeCreateStore': 'createStore',
     'click .js-homeCreateListing': 'createListing',
     'click .js-homeSearchItemsClear': 'onSearchItemsClear',
@@ -182,8 +186,39 @@ module.exports = pageVw.extend({
   },
 
   hideList: function(){
-    this.$('.js-products, .js-vendors, .js-productsSearch, .js-globalChat').addClass('hide');
-    this.$('.js-productsTab, .js-vendorsTab, .js-globalChatTab').removeClass('active');
+    this.$('.js-products, .js-vendors, .js-productsSearch, .js-globalChat, .js-requests').addClass('hide');
+    this.$('.js-productsTab, .js-vendorsTab, .js-globalChatTab, .js-requestsTab').removeClass('active');
+  },
+
+  showrequests: function(){
+    $.ajax({
+      url: 'http://45.32.191.239:3000/api/v1/getrequests',
+      type: 'GET'
+      }).done(function (data) {
+        console.log(data);
+        $('#requeststable').fadeIn();
+        drawTable(data);
+      });
+    function drawTable(data) {
+        for (var i = 0; i < data.length; i++) {
+            drawRow(data[i]);
+        }
+    };
+    function drawRow(rowData) {
+      var row = $("<tr />")
+      $("#requeststable").append(row);
+      row.append($("<td class='nr'>" + rowData.reqid + "</td>"));
+      row.append($("<td>" + rowData.name + "</td>"));
+      row.append($("<td>" + rowData.description + "</td>"));
+      row.append($("<td>" + rowData.price_code + "</td>"));
+      row.append($("<td>" + rowData.price_min + "</td>"));
+      row.append($("<td>" + rowData.price_max + "</td>"));
+      row.append($("<td>" + rowData.type + "</td>"));
+      row.append($("<td>" + "<img src=" + rowData.images + " style='width:100px'>" + "</td>"));
+      row.append($("<td>" + rowData.location + "</td>"));
+      row.append($("<td>" + rowData.comments + "</td>"));
+      row.append($("<td><button type='button' class='bid-button btn btn-info btn-block'>Show Bids</button><button class='send-bid-button btn btn-danger btn-block' data-toggle='modal' data-target='#bidmodal'>Send Bid</button></td>"));
+    };
   },
 
   resetLookingCount: function(){
@@ -207,6 +242,8 @@ module.exports = pageVw.extend({
 
   render: function(){
     var self = this;
+
+    this.showrequests();
 
     // Counter for the IRC chat messages
     var current = 1;

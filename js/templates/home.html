@@ -34,15 +34,19 @@
         <span class="ion-ios-chatboxes fontSize12 marginRight2 textOpacity1"></span> 
         <%= polyglot.t('Global Chat') %>
       </a>
+      <a class="btn btn-bar btn-tab js-requestsTab">
+        <span class="ion-ios-people fontSize12 marginRight2 textOpacity1"></span> 
+        <%= polyglot.t('Requests') %>
+      </a>
     </div>
   </div>
 
   <!-- ? -->
   <div class="bar home-page-navigation-filler hide custCol-primary"></div>
 
-  <!-- Dump global chat -->
+  <!-- js-globalChat HTML goes here -->
   <div class="color-primary js-globalChat minHeight650 hide">
-    <div class="flewRow height130">
+    <div class="flexRow height130">
         <p id="irc"></p>
         <br>
     </div>
@@ -50,9 +54,99 @@
     <div class="flexRow">
       <p><input type="text" class="txtField txtField-bar" id="ircmessage" placeholder="Chat here" /></p>
     </div>
-    <div class="flewRow">
+    <div class="flexRow">
       <p><button class="btn btn-txt btn-discoverToggle borderRadiusBottom0 btn-togLeft js-sendircmessage" style="color:white" type="submit">Send</button></p>
     </div>
+  </div>
+
+  <!-- js-requests HTML goes here -->
+  <div class="color-primary js-requests hide">
+    <!-- Toggle Requests -->
+    <div class="flewRow">
+      <!-- Spacer -->
+      <div class="bar custCol-primary"></div>
+      <!-- Requests Table -->
+      <table id="requeststable" style="display:none;">
+        <thead>
+          <tr>
+            <th scope="row" style="text-align: center; font-size:80%">Request ID</th>
+            <th scope="row" style="text-align: center; font-size:80%">Name</th>
+            <th scope="row" style="text-align: center; font-size:80%">Description</th>
+            <th scope="row" style="text-align: center; font-size:80%">Price Code</th>
+            <th scope="row" style="text-align: center; font-size:80%">Price Min.</th>
+            <th scope="row" style="text-align: center; font-size:80%">Price Max.</th>
+            <th scope="row" style="text-align: center; font-size:80%">Type</th>
+            <th scope="row" style="text-align: center; font-size:80%">Image</th>
+            <th scope="row" style="text-align: center; font-size:80%">Location</th>
+            <th scope="row" style="text-align: center; font-size:80%">Comments</th>
+            <th scope="row" style="text-align: center; font-size:80%">Bid</th>
+          </tr>
+        </thead>
+        <tbody style="font-size:80%"></tbody>
+      </table>
+    </div>
+
+    <!-- Submit a request form -->
+    <!--<div class="flexRow">
+      <form name="sendrequest" method="POST" enctype="application/x-www-form-urlencoded" id="requestform">
+          <div class="flexRow">
+            <label for="requestname">Name</label>
+            <input id="requestname" type="text" name="name" class="txtField txtField-bar textOpacity50" required>
+            <small id="requestnamehelp" class="form-text text-muted">What is the name of the good or service you want to request?</small>
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="requestdescription">Description</label>
+            <input id="requestdescription" type="text" name="description" class="txtField txtField-bar" required>
+            <small id="requestdescriptionhelp" class="form-text text-muted">Describe what you want.</small>
+          </div>
+          <div class="form-group">
+            <label for="requestpricecode">Price Code</label>
+            <input id="requestpricecode" type="text" name="price_code" class="txtField txtField-bar" required>
+            <small id="requestpricecodehelp" class="form-text text-muted">What is the currency code?</small>
+          </div>
+          <div class="form-group">
+            <label for="requestpriceminimum">Price Minimum</label>
+            <input id="requestpriceminimum" type="number" name="price_min" class="txtField txtField-bar" required>
+            <small id="requestpriceminimumhelp" class="form-text text-muted">Minimum price you're willing to pay.</small>
+          </div>
+          <div class="form-group">
+            <label for="requestpricemaximum">Price Maximum</label>
+            <input id="requestpricemaximum" type="number" name="price_max" class="txtField txtField-bar" required>
+            <small id="requestpricemaximumhelp" class="form-text text-muted">Maximum price you're willing to pay.</small>
+          </div>
+          <div class="form-group">
+            <label for="requestkeywords">Keywords</label>
+            <input id="requestkeywords" type="text" name="keywords" class="txtField txtField-bar" required>
+            <small id="requestkeywordshelp" class="form-text text-muted">What are some of the keywords that apply to what you want?</small>
+          </div>
+          <div class="form-group">
+            <label for="requesttype">Type</label>
+            <select id="requesttype" name="type" class="txtField txtField-bar" required>
+              <option value="physical">Physical Good</option>
+              <option value="digital">Digital Good</option>
+              <option value="service">Service</option>
+            </select>
+            <small id="requesttypehelp" class="form-text text-muted">Do you want a physical good, digital good, or service?</small>
+          </div>
+          <div class="form-group">
+            <label for="requestimages">Images</label>
+            <input id="requestimages" type="url" name="images" class="txtField txtField-bar" required>
+            <small id="requestimageshelp" class="form-text text-muted txtField txtField-bar">Submit a direct html link.</small>
+          </div>
+          <div class="form-group">
+            <label for="requestlocation">Location</label>
+            <input id="requestlocation" type="text" name="location" class="txtField txtField-bar" required>
+            <small id="requestlocationhelp" class="form-text text-muted">What country do you live in? Helps the Vendor determine if they can ship to you.</small>
+          </div>
+          <div class="form-group">
+            <label for="requestcomments">Comments</label>
+            <input id="requestcomments" type="text" name="comments" class="txtField txtField-bar" required>
+            <small id="requestcommentshelp" class="form-text text-muted">Any special comments about this request?</small>
+          </div>
+          <input type="submit" class="btn btn-txt btn-discoverToggle borderRadiusBottom0 btn-togLeft" id="submitrequestbutton" style="color:white" />
+      </form>
+    </div>-->
   </div>
 
   <!-- Search bar + filtering -->
